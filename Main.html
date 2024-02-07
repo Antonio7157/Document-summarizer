@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Summary Website</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Book Summary Website</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+    <main class="main">
+        <div class="box">
+            <span style="--i:1;"><img src="book1.jpg" alt=""></span>
+            <span style="--i:2;"><img src="book2.jpg" alt=""></span>
+            <span style="--i:3;"><img src="book3.jpg" alt=""></span>
+            <span style="--i:4;"><img src="book4.jpg" alt=""></span>
+            <span style="--i:5;"><img src="book5.jpg" alt=""></span>
+        </div>
+        <h2>Enter the document to be summarized:</h2>
+        <form id="summarizeForm" onsubmit="summarize(); return false;">
+            <div class="double">
+            <textarea id="inputDocument" name="inputDocument" rows="10" cols="50" placeholder="Paste or type your document here" required></textarea>
+            <div id="summary">
+                <p>Summary will appear here</p>
+            </div>
+            </div>
+            <button type="submit">Summarize</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2023 Book Summary Website</p>
+    </footer>
+
+    <script>
+        function summarize() {
+            var inputDocument = document.getElementById('inputDocument').value;
+        
+            // Basic word frequency-based summarization (you can replace this with a more sophisticated algorithm)
+            var sentences = inputDocument.split(/[.!?]/);
+            var wordFrequency = {};
+        
+            sentences.forEach(sentence => {
+                var words = sentence.split(/\s+/);
+                words.forEach(word => {
+                    word = word.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''); // Remove non-alphanumeric characters
+                    if (word !== '') {
+                        wordFrequency[word] = (wordFrequency[word] || 0) + 1;
+                    }
+                });
+            });
+        
+            // Create a summary based on sentences' proximity and length
+            var summary = [];
+            var sentenceScores = sentences.map((sentence, index) => {
+                var score = 0;
+                var words = sentence.split(/\s+/);
+                var lengthScore = 1 - (words.length / 20); // Penalize longer sentences
+                words.forEach(word => {
+                    word = word.toLowerCase().replace(/[^a-zA-Z0-9]/g, ''); // Remove non-alphanumeric characters
+                    if (word !== '') {
+                        score += (wordFrequency[word] || 0) * lengthScore;
+                    }
+                });
+                return { index, score };
+            });
+        
+            sentenceScores.sort((a, b) => b.score - a.score);
+        
+            var selectedSentences = new Set();
+            var sentenceCount = 10; // The desired number of sentences in the summary
+            for (var i = 0; i < Math.min(sentenceCount, sentenceScores.length); i++) {
+                var selectedSentenceIndex = sentenceScores[i].index;
+                selectedSentences.add(selectedSentenceIndex);
+                summary.push(sentences[selectedSentenceIndex]);
+            }
+        
+            // Display the summary in the HTML element with id 'summary'
+            document.getElementById('summary').innerHTML = "<p>" + summary.join(' ') + "</p>";
+        }
+        </script>
+        
+        
+</body>
+</html>
